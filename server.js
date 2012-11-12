@@ -14,6 +14,7 @@ var winstonStream = {
 var express = require('express'),
     _ = require('underscore'),
     aws = require('aws-lib'),
+    step = require('step'),
     config = require('konphyg')(__dirname + '/config');;
 
 _.str = require('underscore.string');
@@ -36,7 +37,7 @@ app.use(express.logger({stream:winstonStream}));
 app.use(express.static(__dirname + '/public'));
 
 app.all('*', function(req, res, next) {
-  winston.debug("* check for ip/group");
+  winston.debug("* check for ip/group " + hosts.ips.length);
   if (hosts.allow(req.ip)) {
     next();
   }
@@ -55,24 +56,14 @@ var hosts = {
 
   load: function() {
     hosts.append("127.0.0.1");
-    hosts.load_east();
-    hosts.load_west();
+    hosts._load(ec2_east);
+    hosts._load(ec2_west);
   },
 
-  load_east: function() {
-    ec2_east.call("DescribeInstances", {}, function(err, result) {
+  _load: function(endpoint) {
+    endpoint.call("DescribeInstances", {}, function(err, result) {
       var instances = result["reservationSet"]["item"];
       
-      instances.forEach(function(instance) {
-        hosts.append(hosts.getAddress(instance["instancesSet"]["item"]));
-      });
-    });
-  },
-
-  load_west: function() {
-    ec2_west.call("DescribeInstances", {}, function(err, result) {
-      var instances = result["reservationSet"]["item"];
-
       instances.forEach(function(instance) {
         hosts.append(hosts.getAddress(instance["instancesSet"]["item"]));
       });
@@ -106,7 +97,7 @@ var hosts = {
 };
 
 hosts.load();
-
+winston.info(hosts.ips.length);
 
 // UTILS
 function isDefined(obj) {
