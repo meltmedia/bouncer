@@ -1,0 +1,21 @@
+{
+  "port": 4010,
+  "sslport": 4013,
+  "home": "us-east-1",
+  "ssl": true,
+  "ssl_options": {
+    "cert": "./ssl/snakeoil.crt",
+    "key": "./ssl/snakeoil.key",
+    "ca": ["./ssl/snakeoil-CA.crt"]
+  },
+  "public": [
+    {
+      "context": "/example",
+      "path": "./public"
+    },
+    {
+      "context": "/",
+      "path": "./other"
+    }
+  ]
+}
