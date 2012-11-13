@@ -30,8 +30,12 @@ var app = express();
 if (config.server.ssl) {
   try {
     https.createServer(opencerts(config.server.ssl_options), app).listen(config.server.sslport);
-    test_ssl(config);
-    winston.info("SSL Server started on " + config.server.sslport);
+    test_ssl(config, function(err) {
+      if (err) {
+        throw err;
+      }
+      winston.info("SSL Server started on " + config.server.sslport);
+    });
   }
   catch (ex) {
     winston.error("unable to bring up ssl server: " + ex);
@@ -147,12 +151,14 @@ function isDefined(obj) {
 }
 
 // Test the https endpoint, for now this is purely informative
-function test_ssl(options) {
+function test_ssl(options, callback) {
   winston.info("[https_test] testing https server");
   https.get('https://localhost:' + options.server.sslport + "/", function(res) {
     winston.info("[https_test] got a " + res.statusCode + " from the https server");
+    callback();
   }).on('error', function(e) {
     winston.error("[https_test] unable to connect to https server: " + e);
+    callback(e);
   });
 }
 
