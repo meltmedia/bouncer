@@ -51,7 +51,9 @@ if (!isDefined(config.server.public)) {
 
 // set the "home" region
 hosts.setHome(config.server.home);
-// Add us-east-1
+
+// set the whitelisted ip's
+hosts.setWhitelist(config.server.whitelist);
 
 config.aws.active.forEach( function(endpoint) {
   hosts.addEndpoint(
