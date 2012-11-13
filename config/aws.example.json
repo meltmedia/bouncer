@@ -1,7 +1,18 @@
 {
-  "active": ["us-east-1", "us-west-1"],
-  "id": "ID_HERE",
-  "key": "KEY_HERE",
+  "accounts": [
+    {
+      "name": "account one",
+      "id": "ACCOUNT_ONE_ID",
+      "key": "ACCOUNT_ONE_KEY",
+      "active": ["us-east-1", "us-west-1"]
+    },
+    {
+      "name": "account two",
+      "id": "ACCOUNT_TWO_ID",
+      "key": "ACCOUNT_TWO_KEY",
+      "active": ["us-east-1", "eu-west-1"]
+    }
+  ],
   "regions": {
     "us-west-1": "ec2.us-west-1.amazonaws.com",
     "us-west-2": "ec2.us-west-2.amazonaws.com",

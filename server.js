@@ -27,14 +27,14 @@ var config = konphyg.all();
 
 var app = express();
 
-if (config.server.ssl) {
+if (isDefined(config.server.https)) {
   try {
-    https.createServer(opencerts(config.server.ssl_options), app).listen(config.server.sslport);
+    https.createServer(opencerts(config.server.ssl_options), app).listen(config.server.https);
     test_ssl(config, function(err) {
       if (err) {
         throw err;
       }
-      winston.info("SSL Server started on " + config.server.sslport);
+      winston.info("SSL Server started on " + config.server.https);
     });
   }
   catch (ex) {
@@ -42,8 +42,10 @@ if (config.server.ssl) {
   }
 }
 
-app.listen(config.server.port);
-winston.info("Server started on " + config.server.port)
+if (isDefined(config.server.http)) {
+  app.listen(config.server.http);
+  winston.info("Server started on " + config.server.http);
+}
 
 if (!isDefined(config.server.public)) {
   config.server.public = [{ "context": "/", "path": __dirname + "/public" }]
@@ -55,14 +57,17 @@ hosts.setHome(config.server.home);
 // set the whitelisted ip's
 hosts.setWhitelist(config.server.whitelist);
 
-config.aws.active.forEach( function(endpoint) {
-  hosts.addEndpoint(
-    aws.createEC2Client(
-      config.aws.id, 
-      config.aws.key, 
-      { host: config.aws.regions[endpoint] }
-    )
-  );  
+// add all regions for each account
+config.aws.accounts.forEach( function(account) {
+  account.active.forEach( function(region) {
+    hosts.addEndpoint(
+      aws.createEC2Client(
+        account.id, 
+        account.key, 
+        { host: config.aws.regions[region] }
+      )
+    );
+  });
 });
 
 // Configure winston as the logger for express
@@ -112,11 +117,6 @@ app.all('*', function(req, res, next) {
   }
 });
 
-// standard response for the root request
-app.get("/", function(req, res){
-  res.send('200', "welcome to the machine");
-});
-
 // respond with a list of known addresses
 app.get("/system/hosts", function(req, res) {
   res.send('200', hosts.ips);
@@ -135,11 +135,17 @@ app.get("/system/reload", function(req, res) {
 });
 
 // initial population of known addresses
-hosts.load(function(err) {
-  if (!err) {
-    winston.debug("loaded hosts: " + hosts.ips.length);
-  }
-});
+function loadHosts() {
+  hosts.load(function(err) {
+    if (!err) {
+      winston.debug("loaded hosts: " + hosts.ips.length);
+    }
+  });
+};
+
+setInterval(loadHosts, (5 * 60 * 1000));
+
+loadHosts();
 
 // Utils
 // simplify checking if a variable is defined
@@ -155,7 +161,7 @@ function isDefined(obj) {
 // Test the https endpoint, for now this is purely informative
 function test_ssl(options, callback) {
   winston.info("[https_test] testing https server");
-  https.get('https://localhost:' + options.server.sslport + "/", function(res) {
+  https.get('https://localhost:' + options.server.https + "/", function(res) {
     winston.info("[https_test] got a " + res.statusCode + " from the https server");
     callback();
   }).on('error', function(e) {
