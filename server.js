@@ -116,17 +116,6 @@ config.aws.accounts.forEach( function(account) {
 // Configure winston as the logger for express
 app.use(express.logger({stream:winstonStream}));
 
-// set the directories to server files from
-config.server.public.forEach(function(pub) {
-  try {
-    app.use(pub.context, express.static(pub.path));
-    winston.debug("[mount] " + pub.context + " serving " + pub.path);
-  }
-  catch (ex) {
-    winston.error("[mount] unable to mount " + pub.context + " with path " + pub.path);    
-  }
-});
-
 // Authentication mechanism for all requests
 app.all('*', function(req, res, next) {
   winston.debug("* check for ip/group for " + req.ip + " in " + hosts.ips.length);
@@ -157,6 +146,17 @@ app.all('*', function(req, res, next) {
         res.send(403, "you are not from ec2");
       }
     })
+  }
+});
+
+// set the directories to server files from
+config.server.public.forEach(function(pub) {
+  try {
+    app.use(pub.context, express.static(pub.path));
+    winston.debug("[mount] " + pub.context + " serving " + pub.path);
+  }
+  catch (ex) {
+    winston.error("[mount] unable to mount " + pub.context + " with path " + pub.path);    
   }
 });
 
