@@ -1,4 +1,4 @@
-# aws-web-server
+# Bouncer
 
 The purpose of this web server is to offer up files only to authorized ec2 instances. This will query the ec2 endpoints and allow ip or group based file access. 
 
@@ -66,21 +66,20 @@ To disable listening on a port, simply remove it from the configuration.
       "http": 4010,
       "https": 4013,
       "home": "us-east-1",
-      "proxy": true,
       "reload_interval": 5,
       "ssl_options": {
-        "cert": "./ssl/star_meltdev_com.crt",
-        "key": "./ssl/star_meltdev_com.key",
-        "ca": ["./ssl/DigiCertCA.crt"]
+        "cert": "./ssl/snakeoil.crt",
+        "key": "./ssl/snakeoil.key",
+        "ca": ["./ssl/snakeoil-CA.crt"]
       },
       "public": [
         {
           "context": "/example",
-          "path": "/Users/jkennedy/git/meltmedia/sysops/aws-web-server/public"
+          "path": "./other"
         },
         {
           "context": "/",
-          "path": "/Users/jkennedy/git/meltmedia/sysops/aws-web-server/public"
+          "path": "./public"
         }
       ],
       "whitelist": [
@@ -101,3 +100,7 @@ The out logger is used for all other items inside the application and it's level
       "stdout": false,
       "colorize": false
     }
+
+## License
+
+Bouncer is free software distributed under the terms of the MIT license reproduced in the LICENSE file.

@@ -1,6 +1,6 @@
 {
-  "name": "aws-web-server",
-  "description": "aws-web server",
+  "name": "bouncer",
+  "description": "Bouncer is a web server that uses ip addresses matched against aws ec2 instance lists for authorization.",
   "author": "Josh Kennedy <josh@meltmedia.com>",
   "version": "0.1.0",
   "dependencies": {
