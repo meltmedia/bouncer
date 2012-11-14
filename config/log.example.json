@@ -1,0 +1,7 @@
+{
+  "level": "info",
+  "access": "access.log",
+  "out": "server.log",
+  "stdout": false,
+  "colorize": false
+}

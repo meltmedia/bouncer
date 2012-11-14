@@ -1,16 +1,50 @@
-var winston = require('winston');
+// Config and logging need to be done first to allow logging
+// to work early, and to configure the logging
+var konphyg = require('konphyg')(__dirname + '/config'),
+    winston = require('winston');
 
-// Colorize and timestamp console logging, and set sane levels
+var config = konphyg.all();
+
+// Use syslog levels so debug is at the bottom
 winston.setLevels(winston.config.syslog.levels);
-winston.remove(winston.transports.Console).add(winston.transports.Console, {colorize: true, timestamp: true, level: 'debug'});
+// remove the default console transport
+winston.remove(winston.transports.Console);
 
-// Add a stream for express to use
+// if an output file is specified, use it
+if (config.log.out) {
+  winston.add(winston.transports.File, { filename: config.log.out, json: false, timestamp: true });
+}
+
+// if stdout is enable add the console logger back
+if (config.log.stdout) {
+  winston.add(winston.transports.Console, {colorize: config.log.colorize, timestamp: true, level: config.log.level});
+}
+
+// configure the access logger
+var access_log = winston;
+// if there is a log file specified for access, configure it
+if (config.log.access) {
+  winston.loggers.add('access', {
+    file: {
+      filename: config.log.access,
+      timestamp: true,
+      level: 'debug',
+      json: false
+    }
+  });
+
+  access_log = winston.loggers.get('access');
+  access_log.remove(winston.transports.Console);
+}
+
+// Add a stream for express to use, this is backed by the access logger
 var winstonStream = {
   write: function(message, encoding) {
-    winston.debug(message);
+    access_log.debug(message);
   }
 };
 
+// Normal app configuration begins
 var express = require('express'),
     https = require('https'),
     http = require('http'),
@@ -18,15 +52,22 @@ var express = require('express'),
     aws = require('aws-lib'),
     step = require('step'),
     fs = require('fs'),
-    konphyg = require('konphyg')(__dirname + '/config'),
     hosts = require('./lib/hosts');
 
 _.str = require('underscore.string');
 
-var config = konphyg.all();
-
 var app = express();
 
+// set the reload interval || default 5
+var reload_interval = config.server.reload_interval || 5;
+
+// if requests are proxied use the upstream IP
+if (config.server.proxy) {
+  app.enable('trust proxy');
+  winston.info("enabling trusted proxy");
+}
+
+// if https is enabled, configure it
 if (isDefined(config.server.https)) {
   try {
     https.createServer(opencerts(config.server.ssl_options), app).listen(config.server.https);
@@ -42,11 +83,13 @@ if (isDefined(config.server.https)) {
   }
 }
 
+// if http is enabled, configure it
 if (isDefined(config.server.http)) {
   app.listen(config.server.http);
   winston.info("Server started on " + config.server.http);
 }
 
+// if there are no content folders specified, set a default
 if (!isDefined(config.server.public)) {
   config.server.public = [{ "context": "/", "path": __dirname + "/public" }]
 }
@@ -134,17 +177,11 @@ app.get("/system/reload", function(req, res) {
   });
 });
 
+// re-load all hosts every n minutes (converted to millis)
+winston.debug("starting timer to reload hosts every " + reload_interval + " minutes");
+setInterval(loadHosts, (reload_interval * 60 * 1000));
+
 // initial population of known addresses
-function loadHosts() {
-  hosts.load(function(err) {
-    if (!err) {
-      winston.debug("loaded hosts: " + hosts.ips.length);
-    }
-  });
-};
-
-setInterval(loadHosts, (5 * 60 * 1000));
-
 loadHosts();
 
 // Utils
@@ -157,6 +194,15 @@ function isDefined(obj) {
     return false;
   }
 }
+
+// Callback method for loading hosts that only logs
+function loadHosts() {
+  hosts.load(function(err) {
+    if (!err) {
+      winston.debug("loaded hosts: " + hosts.ips.length);
+    }
+  });
+};
 
 // Test the https endpoint, for now this is purely informative
 function test_ssl(options, callback) {

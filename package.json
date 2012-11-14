@@ -8,7 +8,8 @@
     "underscore": "1.4.x",
     "underscore.string": "2.3.x",
     "winston": "0.6.x",
-    "konphyg": "1.2.0",
+    "konphyg": "1.2.x",
+    "step": "0.0.x",
     "aws-lib": "0.1.x"
   },
   "engine": "node 0.8.x"

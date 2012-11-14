@@ -55,12 +55,16 @@ For more ssl options see http://nodejs.org/api/tls.html#tls_tls_createserver_opt
 
 Support for serving multiple directories is supported. Each entry under public will be configured to server content. 
 
+If the application is going to sit behind a trusted proxy (apache, nginx), adding the proxy setting will allow ip detection to work properly.
+
 To disable listening on a port, simply remove it from the configuration
 
     {
       "http": 4010,
       "https": 4013,
       "home": "us-east-1",
+      "proxy": true,
+      "reload_interval": 5,
       "ssl_options": {
         "cert": "./ssl/star_meltdev_com.crt",
         "key": "./ssl/star_meltdev_com.key",
@@ -79,4 +83,18 @@ To disable listening on a port, simply remove it from the configuration
       "whitelist": [
         "127.0.0.1"
       ]
+    }
+
+### Logging Configuration
+
+Logging level, and locations can be configured. If access log is defined that filename will be used instead of the default logger. It's level is set at debug and all access requests from express are logged there.
+
+The out logger is used for all other items inside the application and it's level is configured via the level option. Stdout logging can be enable or disable independently of the out file being defined. If the out file is not defined messages will still be logged through stdout (unless stdout is also disabled). Colorizing is configurable for stdout logging only. For the file outputs json logging is disabled.
+
+    {
+      "level": "info",
+      "access": "access.log",
+      "out": "server.log",
+      "stdout": false,
+      "colorize": false
     }
