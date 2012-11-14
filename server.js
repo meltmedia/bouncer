@@ -12,7 +12,7 @@ winston.remove(winston.transports.Console);
 
 // if an output file is specified, use it
 if (config.log.out) {
-  winston.add(winston.transports.File, { filename: config.log.out, json: false, timestamp: true });
+  winston.add(winston.transports.File, { filename: config.log.out, json: false, timestamp: true, level: config.log.level });
 }
 
 // if stdout is enable add the console logger back

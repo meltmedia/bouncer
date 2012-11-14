@@ -10,6 +10,7 @@ Features:
 * ip address white listing for non ec2 addresses 
 
 Todo:
+* throttle rechecks against the aws endpoints per requesting address
 * check against security groups
 
 ## Configuration
