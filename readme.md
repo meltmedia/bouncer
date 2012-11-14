@@ -57,7 +57,9 @@ Support for serving multiple directories is supported. Each entry under public w
 
 If the application is going to sit behind a trusted proxy (apache, nginx), adding the proxy setting will allow ip detection to work properly.
 
-To disable listening on a port, simply remove it from the configuration
+How often the hosts are updated can be configured using the reload_interval option.
+
+To disable listening on a port, simply remove it from the configuration.
 
     {
       "http": 4010,
