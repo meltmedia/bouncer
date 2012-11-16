@@ -1,3 +1,7 @@
+/*
+  Copyright(c) 2012 meltmedia
+  MIT LICENSE
+ */
 // Config and logging need to be done first to allow logging
 // to work early, and to configure the logging
 var konphyg = require('konphyg')(__dirname + '/config'),
