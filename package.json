@@ -16,7 +16,8 @@
     "winston": "0.6.x",
     "konphyg": "1.2.x",
     "step": "0.0.x",
-    "aws-lib": "0.1.x"
+    "aws-lib": "0.1.x",
+    "aws-sdk": ">= 1.5.0"
   },
   "engine": "node 0.8.x"
 }

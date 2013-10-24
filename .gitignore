@@ -1,0 +1,4 @@
+.idea
+config/aws_credentials.json
+node_modules
+uploads/*
