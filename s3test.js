@@ -29,9 +29,54 @@ AWS.config.update({region: 'us-east-1'});
 
 var express = require('express'),
     app = express(),
-    fs = require('fs');
+    fs = require('fs'),
+    bucketName = "nodeTest";
 
 app.use(express.bodyParser());
+
+//app.get('/files', function(req, res) {
+//
+//  function fileListMarkup(files) {
+//    var markup = '<ul>\n';
+//    files.forEach(function(file){
+//      markup += '<li><a href="https://s3.amazonaws.com/'+bucketName+'/'+file.Key+'" target="_blank">'+file.Key+'</a></li>\n';
+//    });
+//    markup += '</ul>\n';
+//    return markup;
+//  }
+//
+//  var s3bucket = new AWS.S3({params: {Bucket: bucketName}});
+//
+//  res.setHeader('Content-Type', 'text/html');
+//
+//  s3bucket.listObjects({}, function(err, data) {
+//    if (err) {
+//      res.end("Error getting data: ", err);
+//    } else {
+//      res.end(fileListMarkup(data.Contents));
+//    }
+//  });
+//
+//});
+
+app.get('/download/:filename', function(req, res) {
+
+  var s3bucket = new AWS.S3({params: {Bucket: bucketName}});
+
+  s3bucket.getObject({Key: req.params.filename}, function(err, data){
+    if (err) {
+      console.log(err);
+      res.end("Error!");
+    } else {
+      console.log(data);
+      res.setHeader('Content-Type', data.ContentType);
+      res.end(data.Body);
+    }
+  });
+
+  //res.redirect("https://s3.amazonaws.com/" + bucketName + "/" + req.params.filename);
+
+});
 
 app.get('/upload', function(req, res){
   var body = '<form method="post" enctype="multipart/form-data" action="/upload">' +
@@ -41,6 +86,7 @@ app.get('/upload', function(req, res){
   res.setHeader('Content-Type', 'text/html');
   res.setHeader('Content-Length', body.length);
   res.end(body);
+
 });
 
 app.post('/upload', function(req, res, next) {
@@ -61,19 +107,27 @@ app.post('/upload', function(req, res, next) {
 //    });
 //  });
 
-  var s3bucket = new AWS.S3({params: {Bucket: 'nodeTest'}});
+  var s3bucket = new AWS.S3({params: {Bucket: bucketName}});
 
   fs.readFile(tmp_path, function (err, data) {
 
     if (err) { throw err; }
 
-    var dataToUpload = {Key: req.files.thumbnail.name, Body: data};
+    var dataToUpload = {
+      Key: req.files.thumbnail.name,
+      Body: data,
+      ContentType: req.files.thumbnail.type
+    };
 
     s3bucket.putObject(dataToUpload, function(err, data) {
       if (err) {
-        res.send("Error uploading data: ", err);
+        console.log(err);
+        res.end("Error uploading data");
       } else {
-        res.send("Successfully uploaded data to nodeTest/" + req.files.thumbnail.name);
+        res.end("Successfully uploaded data to https://s3.amazonaws.com/" + bucketName + "/" + req.files.thumbnail.name);
+        fs.unlink(tmp_path, function() {
+          if (err) throw err;
+        });
       }
     });
 
