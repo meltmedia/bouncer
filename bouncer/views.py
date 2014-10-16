@@ -39,10 +39,13 @@ def get_address():
 def allowed():
     address = get_address()
     if not whitelist.isAllowed(address):
+        access_log.warn(
+            'DENY %s %s %s' %
+            (address, flask.request.host, flask.request.path))
         flask.abort(403)
 
     access_log.info(
-        'allow %s %s %s' %
+        'ALLOW %s %s %s' %
         (address, flask.request.host, flask.request.path))
 
 
