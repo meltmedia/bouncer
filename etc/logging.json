@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "simple": {
+      "format": "%(asctime)s [%(name)s] %(levelname)s %(message)s",
+      "datefmt": "%Y-%m-%d %I:%M:%S %p"
+    }
+  },
+
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "formatter": "simple",
+      "stream": "ext://sys.stdout"
+    }
+  },
+
+  "root": {
+    "level": "INFO",
+    "handlers": ["console"]
+  },
+
+  "loggers": {
+    "requests": {
+      "level": "WARN"
+    },
+    "newrelic": {
+      "level": "WARN"
+    }
+  }
+}
