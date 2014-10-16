@@ -24,13 +24,26 @@ def init(debug=False):
     return app
 
 
+# TODO: Strike a balance between secure and paranoid
+def get_address():
+    # Are we hitting the server directly? Probably not proxied.
+    if flask.request.host.endswith(':%s' % config.arguments['port']):
+        return flask.request.remote_addr
+
+    if flask.request.headers.getlist("X-Forwarded-For"):
+        return flask.request.headers.getlist("X-Forwarded-For")[-1]
+
+    flask.abort(403)
+
+
 def allowed():
-    if not whitelist.isAllowed(flask.request.remote_addr):
+    address = get_address()
+    if not whitelist.isAllowed(address):
         flask.abort(403)
 
     access_log.info(
         'allow %s %s %s' %
-        (flask.request.remote_addr, flask.request.host, flask.request.path))
+        (address, flask.request.host, flask.request.path))
 
 
 def missing(e):

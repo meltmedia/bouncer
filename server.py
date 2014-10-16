@@ -23,7 +23,7 @@ def get_args(data=None):
         '-p', '--port', default=4010,
         help='Set the port number to run on.')
     parser.add_argument(
-        '-H', '--host', default='0.0.0.0',
+        '-H', '--host', default='127.0.0.1',
         help='Set the host address to listen on.')
 
     parser.add_argument(
@@ -42,7 +42,7 @@ def get_args(data=None):
     return parser.parse_args(data)
 
 
-def run(host='0.0.0.0', port=8080, debug=False, reloader=False, **kwargs):
+def run(host='127.0.0.1', port=4010, debug=False, reloader=False, **kwargs):
     whitelist.init()
 
     app = views.init(debug=debug)
@@ -71,5 +71,6 @@ if __name__ == '__main__':
     log.debug('Starting bouncer')
 
     config.load(filenames=args.config)
+    config.data['arguments'] = args.__dict__
 
     run(**args.__dict__)
