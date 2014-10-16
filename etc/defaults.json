@@ -1,0 +1,36 @@
+{
+  "defaults": {
+    "accounts": {
+      "name": null,
+      "id": null,
+      "key": null,
+      "secret": null,
+      "regions": ["us-west-1", "us-east-1"]
+    },
+    "backends": {
+      "path": "/",
+      "type": "s3",
+      "writable": false
+    }
+  },
+  "accounts": {},
+  "flask": {
+    "secret": "This is a secret."
+  },
+  "query": [],
+  "backends": {},
+  "reload": 5,
+  "region": "us-east-1",
+  "access": {
+    "quietPeriod": 5,
+    "last": null,
+    "updates": {},
+    "detected": [],
+    "whitelist": [],
+    "blacklist": []
+  },
+  "messages": {
+    "missing": "Whoops, can't find what you're looking for.",
+    "forbidden": "DENIED! Not in my house."
+  }
+}
