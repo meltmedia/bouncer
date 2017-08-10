@@ -1,12 +1,9 @@
 import flask
 import logging
+import importlib
 
 from . import config
 from . import whitelist
-
-# TODO: Implement a better way to discover providers.
-from .providers.s3 import S3Provider  # noqa
-
 
 log = logging.getLogger(__name__)
 access_log = logging.getLogger('bouncer.access')
@@ -73,7 +70,8 @@ def register(app):
 
 
 def registerBackend(app, name, backend):
-    log.info('registering backend %s at %s' % (name, backend['path']))
+    log.info('registering backend %s at %s with %s' % (
+        name, backend['path'], backend['provider']))
 
     # Perform normalizations
     path = backend['path']
@@ -86,7 +84,12 @@ def registerBackend(app, name, backend):
     path = path.replace('//', '/')
     catch_path = catch_path.replace('//', '/')
 
-    provider = globals()['%sProvider' % backend['type']]
+    # Take the provider and remove the class name
+    module_name = '.'.join(backend['provider'].split('.')[:-1])
+    klass_name = backend['provider'].split('.')[-1]
+
+    i = importlib.import_module(module_name)
+    provider = getattr(i, klass_name)
 
     app.add_url_rule(path, name, provider(backend))
     app.add_url_rule(catch_path, catch_name, provider(backend))
