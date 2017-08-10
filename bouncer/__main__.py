@@ -2,13 +2,13 @@ import argparse
 import logging
 import werkzeug.serving
 
-import bouncer.ext.args as extargs
-import bouncer.ext.easylog as easylog
+from .ext import args as extargs
+from .ext import easylog as easylog
 
-import bouncer.config as config
-import bouncer.schedule as schedule
-import bouncer.whitelist as whitelist
-import bouncer.views as views
+from . import config
+from . import schedule
+from . import whitelist
+from . import views
 
 log = logging.getLogger('bouncer.server')
 
@@ -39,7 +39,8 @@ def get_args(data=None):
         default=False, action='store_true',
         help='Enable the reloader')
 
-    return parser.parse_args(data)
+    args, unknown = parser.parse_known_args(data)
+    return args
 
 
 def run(host='127.0.0.1', port=4010, debug=False, reloader=False, **kwargs):

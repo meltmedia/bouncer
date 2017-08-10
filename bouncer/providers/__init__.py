@@ -2,7 +2,8 @@ class BaseProvider():
     def __init__(self, backend):
         self.init(backend)
 
-    def init(self):
+    def init(self, backend):
+        """ Initialization method to override """
         pass
 
     def __call__(self, path=None):

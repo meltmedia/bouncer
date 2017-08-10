@@ -9,12 +9,12 @@ prep:
 	@find . -name "*.pyc" -delete
 
 run:
-	@python server.py -R
+	@python -m bouncer -R
 
 test: unittest lint
 
 unittest:
-	@nosetests --with-coverage --cover-html --cover-erase --cover-branches --cover-package=server --cover-package=bouncer
+	@nosetests --with-coverage --cover-html --cover-erase --cover-branches --cover-package=bouncer
 
 lint:
 	@find . -name '*.py' -exec flake8 {} \;
