@@ -17,10 +17,10 @@ unittest:
 	@nosetests --with-coverage --cover-html --cover-erase --cover-branches --cover-package=bouncer
 
 lint:
-	@find . -name '*.py' -exec flake8 {} \;
+	@flake8 .
 
 verboselint:
-	@find . -name '*.py' -exec flake8 --show-pep8 --show-source {} \;
+	@flake8 --show-pep8 --show-source .
 
 clean:
 	@find . -name "*.pyc" -delete

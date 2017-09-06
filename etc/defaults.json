@@ -8,8 +8,6 @@
       "regions": ["us-west-1", "us-east-1"]
     },
     "backends": {
-      "path": "/",
-      "type": "s3",
       "writable": false
     }
   },
