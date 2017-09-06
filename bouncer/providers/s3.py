@@ -29,7 +29,7 @@ class S3Provider(BaseProvider):
 
         return conn.get_bucket(self.backend['bucket'], validate=False)
 
-    def serve(self, path=None):
+    def get(self, path=None):
         if not path:
             path = "index.html"
 
@@ -42,8 +42,9 @@ class S3Provider(BaseProvider):
             flask.abort(404)
 
         def generate():
-            for bytes in key:
-                yield bytes
+            """ stream from s3 chunks """
+            for chunk in key:
+                yield chunk
 
         mime = mimetypes.guess_type(filepath)[0] or DEFAULT_MIMETYPE
 

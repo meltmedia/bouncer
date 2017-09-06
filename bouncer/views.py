@@ -5,12 +5,13 @@ import importlib
 from . import config
 from . import whitelist
 
-log = logging.getLogger(__name__)
-access_log = logging.getLogger('bouncer.access')
+LOG = logging.getLogger(__name__)
+ACCESS_LOG = logging.getLogger('bouncer.access')
+METHODS = ['GET', 'POST', 'PUT', 'DELETE']
 
 
 def init(debug=False):
-    log.debug('initializing flask application')
+    LOG.debug('initializing flask application')
 
     app = flask.Flask(__name__)
     app.debug = debug
@@ -36,12 +37,12 @@ def get_address():
 def allowed():
     address = get_address()
     if not whitelist.isAllowed(address):
-        access_log.warn(
+        ACCESS_LOG.warn(
             'DENY %s %s %s' %
             (address, flask.request.host, flask.request.path))
         flask.abort(403)
 
-    access_log.info(
+    ACCESS_LOG.info(
         'ALLOW %s %s %s' %
         (address, flask.request.host, flask.request.path))
 
@@ -55,7 +56,7 @@ def unauthorized(e):
 
 
 def register(app):
-    log.debug('registering flask routes')
+    LOG.debug('registering flask routes')
 
     app.before_request(allowed)
     app.register_error_handler(404, missing)
@@ -65,12 +66,12 @@ def register(app):
         try:
             registerBackend(app, backend_name, config.backends[backend_name])
         except Exception as e:
-            log.error("Unable to register backend '%s': %s"
+            LOG.error("Unable to register backend '%s': %s"
                       % (backend_name, e))
 
 
 def registerBackend(app, name, backend):
-    log.info('registering backend %s at %s with %s' % (
+    LOG.info('registering backend %s at %s with %s' % (
         name, backend['path'], backend['provider']))
 
     # Perform normalizations
@@ -91,5 +92,5 @@ def registerBackend(app, name, backend):
     i = importlib.import_module(module_name)
     provider = getattr(i, klass_name)
 
-    app.add_url_rule(path, name, provider(backend))
+    app.add_url_rule(path, name, provider(backend), methods=METHODS)
     app.add_url_rule(catch_path, catch_name, provider(backend))

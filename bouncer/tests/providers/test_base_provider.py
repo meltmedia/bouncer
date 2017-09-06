@@ -11,8 +11,17 @@ class TestBaseProvider(unittest.TestCase):
         """ it's a no-op method """
         self.provider.init(None)
 
-    def test_serve(self):
-        self.assertRaises(NotImplementedError, self.provider.serve)
+    def test_get(self):
+        self.assertRaises(NotImplementedError, self.provider.get)
+
+    def test_post(self):
+        self.assertRaises(NotImplementedError, self.provider.post)
+
+    def test_put(self):
+        self.assertRaises(NotImplementedError, self.provider.put)
+
+    def test_delete(self):
+        self.assertRaises(NotImplementedError, self.provider.delete)
 
     def test_call(self):
         self.assertRaises(NotImplementedError, self.provider)

@@ -1,3 +1,8 @@
+import flask
+
+DEFAULT_METHOD = 'get'
+
+
 class BaseProvider():
     def __init__(self, backend):
         self.init(backend)
@@ -7,7 +12,23 @@ class BaseProvider():
         pass
 
     def __call__(self, path=None):
-        return self.serve(path)
+        """ Main entry point to a provider """
+        return getattr(self, self._get_method())(path)
 
-    def serve(self, path=None):
+    def _get_method(self):
+        try:
+            return flask.request.method.lower()
+        except RuntimeError:
+            return DEFAULT_METHOD
+
+    def get(self, path=None):
+        raise NotImplementedError()
+
+    def post(self, path=None):
+        raise NotImplementedError()
+
+    def put(self, path=None):
+        raise NotImplementedError()
+
+    def delete(self, path=None):
         raise NotImplementedError()

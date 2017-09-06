@@ -10,9 +10,9 @@ RUN apt-get clean && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
 
 WORKDIR /opt/bouncer
 
-EXPOSE 4010
+EXPOSE 8080
 
-ENTRYPOINT ["python", "-m", "bouncer", "-H", "0.0.0.0"]
+ENTRYPOINT ["python", "-m", "bouncer", "-H", "0.0.0.0", "-p", "8080"]
 CMD [""]
 
 ADD . /opt/bouncer
